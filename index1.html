@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Función Logarítmica</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rozha+One&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Rozha One', serif;
+            margin: 0;
+            padding: 40px;
+            background-image: url('pagina.jpg'); /* Cambia esta ruta por la de tu imagen */
+            background-size: cover; /* Ajusta el tamaño de la imagen */
+            background-position: center; /* Centra la imagen */
+            color: #bf1818cf;
+            text-align: center;
+        }
+        h1 {
+            color: #bf1818cf; /* Rojo claro */
+            font-size: 2em;
+            margin-bottom: 30px;
+        }
+        form {
+            background-color: rgba(255, 255, 255, 0.8); /* Fondo blanco con algo de transparencia */
+            border-radius: 10px;
+            padding: 25px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        label {
+            display: block;
+            margin: 15px 0 8px;
+            font-weight: bold;
+            color: #5d5d5d;
+        }
+        input {
+            width: 90%;
+            padding: 12px;
+            margin: 8px 0 20px;
+            border: 1px solid #b0b0b0;
+            border-radius: 6px;
+            font-size: 16px;
+            color: #333;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        input:focus {
+            border-color: #bf1818cf; /* Rojo claro */
+            box-shadow: 0 0 8px rgba(255, 99, 71, 0.2);
+            outline: none;
+        }
+        button {
+            background-color: #bf1818cf; /* Rojo claro */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        button:hover {
+            background-color: #00a3e0; /* Un celeste más oscuro */
+            transform: scale(1.05);
+        }
+        #result {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 600px;
+            margin: 30px auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-align: left;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0; /* Línea divisoria */
+        }
+        .result-item:last-child {
+            border-bottom: none; /* Quitar la línea en el último item */
+        }
+        .result-label {
+            font-weight: bold;
+            color: #bf1818cf; /* Rojo claro */
+        }
+        .result-value {
+            color: #333; /* Color del valor */
+        }
+        canvas {
+            margin-top: 30px;
+            background-color: #fff; /* Fondo blanco para el gráfico */
+            border: 2px solid #b0b0b0;
+            border-radius: 6px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
+</head>
+<body>
+    <h1>Explora la Función Logarítmica</h1>
+    <h3>Se permiten únicamente parámetros NÚMERICOS (fracciones en decimales).</h3>
+    <form id="logForm">
+        <label for="a">Valor de a (base del logaritmo, > 0 y ≠ 1):</label>
+        <input type="number" id="a" step="any" required>
+       
+        <label for="b">Valor de b (base del logaritmo, > 0 y ≠ 1):</label>
+        <input type="number" id="b" step="any" required>
+       
+        <label for="c">Valor de c (desplazamiento horizontal):</label>
+        <input type="number" id="c" step="any" required>
+       
+        <label for="k">Valor de k (desplazamiento vertical):</label>
+        <input type="number" id="k" step="any" required>
+       
+        <button type="submit">Calcular</button>
+    </form>
+
+    <canvas id="logChart" width="600" height="400"></canvas>
+    
+    <div id="result">
+        <h2>Resultados:</h2>
+        <div class="result-item">
+            <span class="result-label">Raíz:</span>
+            <span class="result-value" id="raizValue"></span>
+        </div>
+        <div class="result-item">
+            <span class="result-label">Asintota:</span>
+            <span class="result-value" id="asintotaValue"></span>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('logForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const a = parseFloat(document.getElementById('a').value);
+            const b = parseFloat(document.getElementById('b').value);
+            const c = parseFloat(document.getElementById('c').value);
+            const k = parseFloat(document.getElementById('k').value);
+
+            if (a === 1 || b <= 0 || b === 1 || k === 0) {
+                alert("Valores inválidos. 'a' y 'b' deben ser positivos y distintos de 1.");
+                return;
+            }
+
+            const raiz = c + Math.pow(b, (-k / a)); // Ajuste para raíz
+            const asintota = `x = ${c}`; // Asintota en x = c
+
+            document.getElementById('raizValue').textContent = raiz.toFixed(2);
+            document.getElementById('asintotaValue').textContent = asintota;
+
+            const ctx = document.getElementById('logChart').getContext('2d');
+            const xValues = [];
+            const yValues = [];
+
+            for (let x = c + 0.1; x < c + 10; x += 0.1) {
+                xValues.push(x);
+                yValues.push(a * Math.log(x - c) / Math.log(b) + k);
+            }
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: xValues,
+                    datasets: [{
+                        label: `f(x) = ${a} * log_${b}(x - ${c}) + ${k}`,
+                        data: yValues,
+                        borderColor: 'rgba(191, 24, 24, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'x' }
+                        },
+                        y: {
+                            title: { display: true, text: 'f(x)' },
+                            beginAtZero: false
+                        }
+                    },
+                    plugins: {
+                        annotation: {
+                            annotations: {
+                                line1: {
+                                    type: 'line',
+                                    xMin: c,
+                                    xMax: c,
+                                    borderColor: 'rgba(0, 163, 224, 1)',
+                                    borderWidth: 1,
+                                    borderDash: [5, 5],
+                                    label: {
+                                        content: `Asintota x = ${c}`,
+                                        enabled: true,
+                                        position: "top"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
